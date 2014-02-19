@@ -42,26 +42,32 @@ public class FunctionGraph extends JComponent
     
     public void setXMin(double xmin) {
         this.xmin = xmin;
+        this.repaint();
     }
     
-    public void setXMax(double xax) {
-        this.xmin = xmax;
+    public void setXMax(double xmax) {
+        this.xmax = xmax;
+        this.repaint();
     }
     
     public void setXScale(double xscale) {
         this.xscale = xscale;
+        this.repaint();
     }
     
     public void setYMin(double ymin) {
         this.ymin = ymin;
+        this.repaint();
     }
     
     public void setYMax(double ymax) {
         this.ymax = ymax;
+        this.repaint();
     }
     
     public void setYScale(double yscale) {
         this.yscale = yscale;
+        this.repaint();
     }
     
     @Override

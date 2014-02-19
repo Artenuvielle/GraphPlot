@@ -1,6 +1,6 @@
 package org.htwk.graphplot.expression.operations;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.htwk.graphplot.expression.InvalidVariableNameException;
 import org.htwk.graphplot.expression.core.Expression;
@@ -17,7 +17,7 @@ public class Power extends Operation
         super(expressionBeforeOperator, expressionAfterOperator);
     }
     
-    public double calculateValue(HashMap<String, Double> variables) throws InvalidVariableNameException
+    public double calculateValue(Map<String, Double> variables) throws InvalidVariableNameException
     {
         return Math.pow(getExpressionBeforeOperator().calculateValue(variables),
                         getExpressionAfterOperator().calculateValue(variables));

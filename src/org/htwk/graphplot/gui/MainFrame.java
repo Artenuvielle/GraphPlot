@@ -27,7 +27,7 @@ public class MainFrame extends JFrame
         setContentPane(contentPane);
         
         FunctionGraph functionGraph = new FunctionGraph();
-        //functionGraph.setFunction("1/x");
+        functionGraph.setFunction("min(x^3,x,5)");
         contentPane.add(functionGraph, BorderLayout.CENTER);
     }
     

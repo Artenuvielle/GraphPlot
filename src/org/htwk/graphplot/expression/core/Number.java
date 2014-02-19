@@ -1,6 +1,6 @@
 package org.htwk.graphplot.expression.core;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.htwk.graphplot.expression.InvalidVariableNameException;
 
@@ -29,7 +29,7 @@ public class Number implements Expression
         }
     }
 
-    public double calculateValue(HashMap<String, Double> variables) throws InvalidVariableNameException
+    public double calculateValue(Map<String, Double> variables) throws InvalidVariableNameException
     {
         if(variableName != null) {
             if(variables.containsKey(variableName)) {
