@@ -18,6 +18,7 @@ public class FunctionGraph extends JComponent {
 
 	private double xmin = -10, xmax = 10, xscale = 1;
 	private double ymin = -10, ymax = 10, yscale = 1;
+	private boolean automaticY = true;
 	private Expression functionToDraw;
 
 	public void setFunction(Expression function) {
@@ -68,12 +69,15 @@ public class FunctionGraph extends JComponent {
 		this.repaint();
 	}
 
+	public void setAutomaticY(boolean automatic) {
+		this.automaticY = automatic;
+	}
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		g.setColor(Color.white);
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
-		drawGraphAxes(g);
 		g.setColor(Color.blue);
 		try {
 			if (functionToDraw != null) {
@@ -82,6 +86,7 @@ public class FunctionGraph extends JComponent {
 		} catch (InvalidVariableNameException e) {
 			e.printStackTrace();
 		}
+		drawGraphAxes(g);
 		g.setColor(Color.black);
 		g.drawRect(0, 0, this.getWidth() - 1, this.getHeight() - 1);
 	}
@@ -89,19 +94,41 @@ public class FunctionGraph extends JComponent {
 	private void drawFunction(Graphics g) throws InvalidVariableNameException {
 		if (functionToDraw != null) {
 			HashMap<String, Double> variables = new HashMap<String, Double>();
+			Double ymin = Double.MAX_VALUE, ymax = -Double.MAX_VALUE;
+			Double[] functionPoints = new Double[this.getWidth()];
 			Integer[] functionPixels = new Integer[this.getWidth()];
 			for (int xPixel = 0; xPixel < this.getWidth(); xPixel++) {
 				variables.put("x", new Double(getXValueForHorizontalPixel(xPixel)));
 				double value = functionToDraw.calculateValue(variables);
 				if (!Double.isNaN(value)) {
-					functionPixels[xPixel] = getVerticalPixelForYValue(value);
+					if (value < ymin) {
+						ymin = value;
+					}
+					if (value > ymax) {
+						ymax = value;
+					}
+					functionPoints[xPixel] = value;
 				} else {
-					functionPixels[xPixel] = null;
+					functionPoints[xPixel] = null;
 				}
 			}
+			if (this.automaticY) {
+				this.ymin = 4 * ymin / 3 ;
+				this.ymax = 4 * ymax / 3;
+			}
+			if (functionPoints[0] != null) {
+				functionPixels[0] = getVerticalPixelForYValue(functionPoints[0]);
+			} else {
+				functionPixels[0] = null;
+			}
 			for (int iterator = 1; iterator < functionPixels.length - 1; iterator++) {
-				if (functionPixels[iterator] != null && functionPixels[iterator + 1] != null) {
-					g.drawLine(iterator, functionPixels[iterator], iterator + 1, functionPixels[iterator + 1]);
+				if (functionPoints[iterator] != null) {
+					functionPixels[iterator] = getVerticalPixelForYValue(functionPoints[iterator]);
+				} else {
+					functionPixels[iterator] = null;
+				}
+				if (functionPixels[iterator - 1] != null && functionPixels[iterator] != null) {
+					g.drawLine(iterator - 1, functionPixels[iterator - 1], iterator, functionPixels[iterator]);
 				}
 			}
 		}

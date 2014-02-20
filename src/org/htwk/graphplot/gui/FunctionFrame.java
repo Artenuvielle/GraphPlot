@@ -31,6 +31,9 @@ import java.awt.event.ActionEvent;
 import java.lang.Double;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.JCheckBox;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
 /**
  * @author Sophie Eckenstaler, René Martin
@@ -44,23 +47,25 @@ public class FunctionFrame extends JFrame {
 	private JPanel Panel_Eingabe;
 	private JTextField txtX_1;
 	private JPanel panel_x;
-	private JTextField txtX;
 	private JTextField txtMin_x;
 	private JPanel panel_y;
-	private JTextField txtY;
 	private JPanel panel_xmin;
 	private JTextField textField_xmin;
 	private JPanel panel_xmax;
 	private JTextField txtMax_x;
 	private JTextField textField_xmax;
 	private JPanel panel_ymin;
-	private JTextField txtMin_y;
 	private JTextField textField_ymin;
 	private JPanel panel_ymax;
-	private JTextField txtMax_y;
 	private JTextField textField_ymax;
 	private JPanel panel_Button;
 	private JButton btnNewButton;
+	private JCheckBox chkYEnabled;
+	private JPanel panel;
+	private JLabel txtX;
+	private JLabel txtY;
+	private JLabel txtMin_y;
+	private JLabel txtMax_y;
 
 	/**
 	 * Create the frame.
@@ -115,13 +120,10 @@ public class FunctionFrame extends JFrame {
 		Panel_Fktplot.add(panel_x);
 		panel_x.setLayout(new GridLayout(0, 3, 2, 0));
 		
-		txtX = new JTextField();
-		txtX.setText("x");
-		txtX.setHorizontalAlignment(SwingConstants.CENTER);
+		txtX = new JLabel("X");
 		txtX.setForeground(Color.DARK_GRAY);
 		txtX.setFont(new Font("Verdana", Font.BOLD, 15));
-		txtX.setEditable(false);
-		txtX.setColumns(2);
+		txtX.setHorizontalAlignment(SwingConstants.CENTER);
 		panel_x.add(txtX);
 		
 		panel_xmin = new JPanel();
@@ -170,29 +172,44 @@ public class FunctionFrame extends JFrame {
 		Panel_Fktplot.add(panel_y);
 		panel_y.setLayout(new GridLayout(0, 3, 2, 0));
 		
-		txtY = new JTextField();
-		txtY.setText("y");
+		panel = new JPanel();
+		panel_y.add(panel);
+		panel.setLayout(new GridLayout(3, 1, 0, 0));
+		
+		chkYEnabled = new JCheckBox("Eigene Y-Grenzen");
+		chkYEnabled.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				txtY.setEnabled(chkYEnabled.isSelected());
+				txtMin_y.setEnabled(chkYEnabled.isSelected());
+				txtMax_y.setEnabled(chkYEnabled.isSelected());
+				textField_ymin.setEnabled(chkYEnabled.isSelected());
+				textField_ymax.setEnabled(chkYEnabled.isSelected());
+			}
+		});
+		chkYEnabled.setFont(new Font("Verdana", Font.PLAIN, 13));
+		chkYEnabled.setHorizontalAlignment(SwingConstants.CENTER);
+		panel.add(chkYEnabled);
+		
+		txtY = new JLabel("Y");
+		txtY.setEnabled(false);
 		txtY.setHorizontalAlignment(SwingConstants.CENTER);
-		txtY.setForeground(Color.DARK_GRAY);
 		txtY.setFont(new Font("Verdana", Font.BOLD, 15));
-		txtY.setEditable(false);
-		txtY.setColumns(2);
-		panel_y.add(txtY);
+		txtY.setForeground(Color.DARK_GRAY);
+		panel.add(txtY);
 		
 		panel_ymin = new JPanel();
 		panel_y.add(panel_ymin);
 		panel_ymin.setLayout(new GridLayout(2, 1, 0, 0));
 		
-		txtMin_y = new JTextField();
-		txtMin_y.setText("min");
+		txtMin_y = new JLabel("min");
+		txtMin_y.setEnabled(false);
 		txtMin_y.setHorizontalAlignment(SwingConstants.CENTER);
 		txtMin_y.setForeground(Color.DARK_GRAY);
 		txtMin_y.setFont(new Font("Verdana", Font.BOLD, 15));
-		txtMin_y.setEditable(false);
-		txtMin_y.setColumns(10);
 		panel_ymin.add(txtMin_y);
 		
 		textField_ymin = new JTextField();
+		textField_ymin.setEnabled(false);
 		textField_ymin.setText("-10");
 		textField_ymin.setHorizontalAlignment(SwingConstants.CENTER);
 		textField_ymin.setForeground(Color.BLACK);
@@ -204,16 +221,15 @@ public class FunctionFrame extends JFrame {
 		panel_y.add(panel_ymax);
 		panel_ymax.setLayout(new GridLayout(2, 1, 0, 0));
 		
-		txtMax_y = new JTextField();
-		txtMax_y.setText("max");
+		txtMax_y = new JLabel("max");
 		txtMax_y.setHorizontalAlignment(SwingConstants.CENTER);
 		txtMax_y.setForeground(Color.DARK_GRAY);
 		txtMax_y.setFont(new Font("Verdana", Font.BOLD, 15));
-		txtMax_y.setEditable(false);
-		txtMax_y.setColumns(10);
+		txtMax_y.setEnabled(false);
 		panel_ymax.add(txtMax_y);
 		
 		textField_ymax = new JTextField();
+		textField_ymax.setEnabled(false);
 		textField_ymax.setText("10");
 		textField_ymax.setHorizontalAlignment(SwingConstants.CENTER);
 		textField_ymax.setForeground(Color.BLACK);
@@ -228,11 +244,15 @@ public class FunctionFrame extends JFrame {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				functionGraph.setFunction(txtX_1.getText());
-				functionGraph.setXMin(Double.parseDouble(textField_xmin.getText()));
-				functionGraph.setXMax(Double.parseDouble(textField_xmax.getText()));
-				functionGraph.setYMin(Double.parseDouble(textField_ymin.getText()));
-				functionGraph.setYMax(Double.parseDouble(textField_ymax.getText()));
-				
+				functionGraph.setXMin(Double.parseDouble(textField_xmin.getText().replace(",", ".")));
+				functionGraph.setXMax(Double.parseDouble(textField_xmax.getText().replace(",", ".")));
+				if(chkYEnabled.isSelected()) {
+					functionGraph.setAutomaticY(false);
+					functionGraph.setYMin(Double.parseDouble(textField_ymin.getText().replace(",", ".")));
+					functionGraph.setYMax(Double.parseDouble(textField_ymax.getText().replace(",", ".")));
+				} else {
+					functionGraph.setAutomaticY(true);
+				}
 			}
 		});
 		panel_Button.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
