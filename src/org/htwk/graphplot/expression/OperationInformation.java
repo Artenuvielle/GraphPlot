@@ -11,7 +11,7 @@ import org.htwk.graphplot.expression.core.Operation.OperationImportance;
  */
 public class OperationInformation {
 
-	private Class<Operation> operationClass;
+	private Class<? extends Operation> operationClass;
 	private String operationString;
 	private OperationImportance operationImportance;
 
@@ -26,7 +26,7 @@ public class OperationInformation {
 	 * @param operationImportance
 	 *            The importance of the operation
 	 */
-	public OperationInformation(Class<Operation> operationClass, String operationString, OperationImportance operationImportance) {
+	public OperationInformation(Class<? extends Operation> operationClass, String operationString, OperationImportance operationImportance) {
 		this.operationClass = operationClass;
 		this.operationString = operationString;
 		this.operationImportance = operationImportance;
@@ -37,7 +37,7 @@ public class OperationInformation {
 	 * 
 	 * @return the operation class
 	 */
-	public Class<Operation> getOperationClass() {
+	public Class<? extends Operation> getOperationClass() {
 		return operationClass;
 	}
 

@@ -44,79 +44,63 @@ public abstract class Operation implements Expression {
 	}
 
 	/**
-	 * Prototype constructor for an operation combining two expressions
-	 * 
-	 * @param expressionBeforeOperator
-	 *            The expression before the operator
-	 * @param expressionAfterOperator
-	 *            The expression after the operator
+	 * Prototype constructor for an operation combining two undefined
+	 * expressions (two instances of the number 0 are used instead)
 	 */
 	public Operation() {
 		setExpressionBeforeOperator(new Number(0));
 		setExpressionAfterOperator(new Number(0));
 	}
 
+	/**
+	 * Sets the expression before the operator.
+	 * 
+	 * @param expr
+	 *            Expression to set
+	 */
 	public void setExpressionBeforeOperator(Expression expr) {
 		this.expressionBeforeOperator = expr;
 	}
 
+	/**
+	 * Sets the expression after the operator.
+	 * 
+	 * @param expr
+	 *            Expression to set
+	 */
 	public void setExpressionAfterOperator(Expression expr) {
 		this.expressionAfterOperator = expr;
 	}
 
+	/**
+	 * Gets the expression before the operator.
+	 * 
+	 * @return Expression before operator
+	 */
 	protected Expression getExpressionBeforeOperator() {
 		return this.expressionBeforeOperator;
 	}
 
+	/**
+	 * Gets the expression after the operator.
+	 * 
+	 * @return Expression after operator
+	 */
 	protected Expression getExpressionAfterOperator() {
 		return this.expressionAfterOperator;
 	}
 
+	/**
+	 * This method should be called once at the startup of the project to load
+	 * all classes extending Operation and making them accessible through the
+	 * static list Operation.availableOperations.
+	 */
 	public static void loadAllOperators() {
 		List<Class<?>> classes = ClassEnumerator.getClassesForPackage(ClassEnumerator.class.getPackage());
 		for (Class<?> currentClass : classes) {
 			if (isClassExtendingOperation(currentClass)) {
 				interpretOperationClass((Class<Operation>) currentClass);
 			}
-		}
-	}
-
-	private static void interpretOperationClass(Class<Operation> operationClass) {
-		String operationStringInClass = null;
-		OperationImportance operationImportanceInClass = null;
-		for (Field f : operationClass.getFields()) {
-			try {
-				switch (f.getName()) {
-				case "operationString":
-					if (f.get(null) != null)
-						operationStringInClass = (String) f.get(null);
-					break;
-				case "operationImportance":
-					if (f.get(null) != null)
-						operationImportanceInClass = (OperationImportance) f.get(null);
-					break;
-				}
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				logger.severe("The class " + operationClass.getName() + " could not be loaded correctly because the expected fields were not readable.");
-			}
-		}
-		if (operationStringInClass != null && operationImportanceInClass != null) {
-			if (availableOperations.isEmpty()) {
-				availableOperations.add(new OperationInformation(operationClass, operationStringInClass, operationImportanceInClass));
-			} else {
-				// Cycle through the list of operation until the importance of
-				// the current class is bigger than the importance of the next
-				// operation information
-				ListIterator<OperationInformation> importanceIterator = availableOperations.listIterator();
-				while (importanceIterator.hasNext() && importanceIterator.next().getOperationImportance().biggerThan(operationImportanceInClass))
-					;
-				if (importanceIterator.previous().getOperationImportance().biggerThan(operationImportanceInClass)) {
-					importanceIterator.next();
-				}
-				importanceIterator.add(new OperationInformation(operationClass, operationStringInClass, operationImportanceInClass));
-			}
-		} else {
-			logger.warning("The class " + operationClass.getName() + " is in the expression.operations package " + "but does not contain the expected values.");
 		}
 	}
 
@@ -132,6 +116,57 @@ public abstract class Operation implements Expression {
 		return classToTest.getPackage().getName().contains("expression.operations") && classToTest.getSuperclass() == Operation.class;
 	}
 
+	/**
+	 * Performs a check if the class has all the needed static fields and loads
+	 * its information.
+	 * 
+	 * @param operationClass
+	 *            The class extending Operation to load
+	 */
+	private static void interpretOperationClass(Class<Operation> operationClass) {
+		OperationInformation operationInformation = null;
+		for (Field f : operationClass.getFields()) {
+			try {
+				if (f.getName().equals("operationInformation")) {
+					if (f.get(null) != null) {
+						operationInformation = (OperationInformation) f.get(null);
+					}
+				}
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				logger.severe("The class " + operationClass.getName() + " could not be loaded correctly because the expected operationInformation field was not readable.");
+			}
+		}
+		if (operationInformation != null) {
+			if (availableOperations.isEmpty()) {
+				availableOperations.add(operationInformation);
+			} else {
+				// Cycle through the list of operation until the importance of
+				// the current class is bigger than the importance of the next
+				// operation information
+				ListIterator<OperationInformation> importanceIterator = availableOperations.listIterator();
+				while (importanceIterator.hasNext() && importanceIterator.next().getOperationImportance().biggerThan(operationInformation.getOperationImportance()))
+					;
+				if (importanceIterator.previous().getOperationImportance().biggerThan(operationInformation.getOperationImportance())) {
+					importanceIterator.next();
+				}
+				importanceIterator.add(operationInformation);
+			}
+		} else {
+			logger.warning("The class " + operationClass.getName() + " is in the expression.operations package " + "but does not contain the expected values.");
+		}
+	}
+
+	/**
+	 * Searches the List of all operation information for the one which holds a
+	 * given operator string.
+	 * 
+	 * @param operationStringToLookFor
+	 *            The operator string to search for.
+	 * @return The operation information containing the searched operator string
+	 * @throws InvalidExpressionException
+	 *             is thrown if an operator string is searched which was not
+	 *             previously registered.
+	 */
 	public static OperationInformation getOperationInformationForOperator(String operationStringToLookFor) throws InvalidExpressionException {
 		for (OperationInformation currentInformation : availableOperations) {
 			if (operationStringToLookFor.equals(currentInformation.getOperationString()))
@@ -140,18 +175,44 @@ public abstract class Operation implements Expression {
 		throw new InvalidExpressionException("No such operation registered: " + operationStringToLookFor);
 	}
 
+	/**
+	 * This enumeration is used to give operators the possibility to be
+	 * calculated before others by having a higher importance. This is useful
+	 * for rules like
+	 * "subtraction and addition after multiplication or division".
+	 * 
+	 * @author Sophie Eckenstaler, René Martin
+	 * @version 1.0
+	 */
 	public enum OperationImportance {
+
 		MOST_IMPORTANT(10), VERY_IMPORTANT(5), NORMALLY_IMPORTANT(0), NOT_VERY_IMPORTANT(-5), LEAST_IMPORTANT(-10);
 
 		private int importanceValue;
 
+		/**
+		 * Instantiates an importance object with a given importance value.
+		 * 
+		 * @param importanceValue
+		 *            The importance value. the higher the value, the earlier is
+		 *            is calculated.
+		 */
 		private OperationImportance(int importanceValue) {
 			this.importanceValue = importanceValue;
 		}
 
+		/**
+		 * Compares the importance value of this object to the one of another
+		 * object.
+		 * 
+		 * @param other
+		 *            The other operations importance value
+		 * @return True if the importance of this operation is higher.
+		 */
 		public boolean biggerThan(OperationImportance other) {
 			return importanceValue > other.importanceValue;
 		}
+
 	}
 
 }

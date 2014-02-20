@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import org.htwk.graphplot.expression.ClassEnumerator;
 import org.htwk.graphplot.expression.FunctionInformation;
 import org.htwk.graphplot.expression.InvalidExpressionException;
-import org.htwk.graphplot.expression.StringTransformer;
 
 /**
  * This abstract class is a prototype for any function which should later be
@@ -37,7 +36,7 @@ public abstract class Function implements Expression {
 		List<Class<?>> classes = ClassEnumerator.getClassesForPackage(ClassEnumerator.class.getPackage());
 		for (Class<?> currentClass : classes) {
 			if (isClassExtendingFunction(currentClass)) {
-				interpretFunctionClass((Class<Function>) currentClass);
+				interpretFunctionClass((Class<? extends Function>) currentClass);
 			}
 		}
 	}
@@ -61,34 +60,28 @@ public abstract class Function implements Expression {
 	 * @param functionClass
 	 *            The class extending Function to load
 	 */
-	private static void interpretFunctionClass(Class<Function> functionClass) {
-		String functionNameInClass = null;
-		int[] acceptedParameterNumberInClass = null;
+	private static void interpretFunctionClass(Class<? extends Function> functionClass) {
+		FunctionInformation functionInformationForCurrentClass = null;
 		for (Field f : functionClass.getFields()) {
 			try {
-				switch (f.getName()) {
-				case "functionName":
-					if (f.get(null) != null)
-						functionNameInClass = (String) f.get(null);
-					break;
-				case "acceptedParameterNumber":
-					if (f.get(null) != null)
-						acceptedParameterNumberInClass = (int[]) f.get(null);
-					break;
+				if (f.getName().equals("functionInformation")) {
+					if (f.get(null) != null) {
+						functionInformationForCurrentClass = (FunctionInformation) f.get(null);
+					}
 				}
 			} catch (IllegalArgumentException | IllegalAccessException e) {
-				logger.severe("The class " + functionClass.getName() + " could not be loaded correctly because the expected fields were not readable.");
+				logger.severe("The class " + functionClass.getName() + " could not be loaded correctly because the functionInformation field was not readable.");
 			}
 		}
-		if (functionNameInClass != null && acceptedParameterNumberInClass != null) {
-			availableFunctions.add(new FunctionInformation(functionClass, functionNameInClass, acceptedParameterNumberInClass));
+		if (functionInformationForCurrentClass != null) {
+			availableFunctions.add(functionInformationForCurrentClass);
 		} else {
-			logger.warning("The class " + functionClass.getName() + " is in the expression.functions package but does not contain the expected values.");
+			logger.warning("The class " + functionClass.getName() + " is in the expression.functions package but does not contain the expected function information.");
 		}
 	}
 
 	/**
-	 * Searches the List of all function information for the one which hold a
+	 * Searches the List of all function information for the one which holds a
 	 * given function name.
 	 * 
 	 * @param functionStringToLookFor

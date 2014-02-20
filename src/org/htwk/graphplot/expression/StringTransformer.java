@@ -33,8 +33,8 @@ public final class StringTransformer {
 	 */
 	// TODO proper variable recognition
 	private final InitialTransformationHolder[] initialTransformations = new InitialTransformationHolder[] { new InitialTransformationHolder("\\s+", "", "stripping whitespaces resulted in "),
-			new InitialTransformationHolder("(\\d)x", "$1*x", "Multipliers before variable resulted in "), new InitialTransformationHolder("(x|\\d+)", "($1)", "Numbers in brackets resulted in "),
-			new InitialTransformationHolder("(?<!\\))-", "(0)minus", "Negative transformation resulted in ") };
+			new InitialTransformationHolder("(\\d)x", "$1*x", "Multipliers before variable resulted in "), new InitialTransformationHolder("(\\d+)", "($1)", "Numbers in brackets resulted in "),
+			new InitialTransformationHolder("(?<![a-z])(x)(?![a-z])", "($1)", "Variables in brackets resulted in "), new InitialTransformationHolder("(?<!\\))-", "(0)minus", "Negative transformation resulted in ") };
 
 	private String inputExpression;
 	private String originalInput;
@@ -121,12 +121,12 @@ public final class StringTransformer {
 	private void putSingleFunctionInBrackets(String function) throws InvalidExpressionException {
 		Matcher functionMatcher;
 		int endingBracket, lastFunctionPosition;
-		functionMatcher = Pattern.compile(Pattern.quote(function)).matcher(inputExpression);
+		functionMatcher = Pattern.compile("(?<![a-z])" + Pattern.quote(function + "(")).matcher(inputExpression);
 		lastFunctionPosition = 0;
 		while (functionMatcher.find(lastFunctionPosition)) {
-			endingBracket = StringTransformer.findAccordingBracket(inputExpression, functionMatcher.end());
+			endingBracket = StringTransformer.findAccordingBracket(inputExpression, functionMatcher.end() - 1);
 			putBracketsAroundArea(functionMatcher.start(), endingBracket);
-			lastFunctionPosition = functionMatcher.end() + 1;
+			lastFunctionPosition = functionMatcher.end();
 			functionMatcher.reset(inputExpression);
 		}
 	}

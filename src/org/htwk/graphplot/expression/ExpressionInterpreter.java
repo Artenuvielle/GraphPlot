@@ -106,7 +106,7 @@ public class ExpressionInterpreter {
 		Expression firstExpression = recursiveExpressionInterpreter(fromPostionInFormattedString + 1, endOfFirstBracket);
 		Expression secondeExpression = recursiveExpressionInterpreter(startOfLastBracket, untilPostionInFormattedString - 1);
 		try {
-			Constructor<Operation> constructor = currentOperation.getOperationClass().getConstructor(new Class[] { Expression.class, Expression.class });
+			Constructor<? extends Operation> constructor = currentOperation.getOperationClass().getConstructor(new Class[] { Expression.class, Expression.class });
 			return constructor.newInstance(firstExpression, secondeExpression);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			throw new InvalidExpressionException("Could not create operation instance", e);
@@ -135,8 +135,9 @@ public class ExpressionInterpreter {
 		FunctionInformation currentFunction = Function.getFunctionInformationForFunctionName(functionName);
 		Expression[] parameters = interpretFunctionParameters(positionOfFirstOpeningBracket, untilPostionInFormattedString);
 		try {
-			Constructor<Function> constructor = currentFunction.getFunctionClass().getConstructor(new Class[] { Expression[].class });
-			// TODO Check parameter count
+			Constructor<? extends Function> constructor = currentFunction.getFunctionClass().getConstructor(new Class[] { Expression[].class });
+			if (!currentFunction.isParameterCountAcceptable(parameters.length))
+				throw new InvalidExpressionException("The function " + currentFunction.getFunctionName() + " does not accept " + parameters.length + " parameters.");
 			return constructor.newInstance((Object) parameters);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			throw new InvalidExpressionException("Could not create function instance", e);
@@ -168,13 +169,14 @@ public class ExpressionInterpreter {
 				endPositionForCurrentParameter = StringTransformer.findAccordingBracket(normalizedExpressiontext, analyzerPosition);
 				expressionList.add(recursiveExpressionInterpreter(analyzerPosition, endPositionForCurrentParameter));
 			} else {
-				throw new InvalidExpressionException("");
+				throw new InvalidExpressionException("Function parameters could not be correctly interpreted.");
 			}
 			// move beyond ","
 			analyzerPosition = endPositionForCurrentParameter + 2;
 		}
-		if (analyzerPosition == untilPostionInFormattedString - 1)
-			expressionList.add(null);
+		// TODO Check if needed
+		/*if (analyzerPosition == untilPostionInFormattedString - 1)
+			expressionList.add(null);*/
 		// convert ArrayList into an array
 		Expression[] actualReturnArray = new Expression[expressionList.size()];
 		for (int i = 0; i < actualReturnArray.length; i++) {

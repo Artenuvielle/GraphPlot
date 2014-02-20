@@ -10,9 +10,9 @@ import org.htwk.graphplot.expression.core.Function;
  */
 public class FunctionInformation {
 
-	private Class<Function> functionClass;
+	private Class<? extends Function> functionClass;
 	private String functionName;
-	private int[] acceptedParameterNumber;
+	private ParameterCountCheck parameterCountChecker;
 
 	/**
 	 * Initializes a object which holds information about a class extending
@@ -22,13 +22,13 @@ public class FunctionInformation {
 	 *            The class extending Function
 	 * @param functionName
 	 *            The name of the function
-	 * @param acceptedParameterNumber
-	 *            Accepted number of parameters
+	 * @param delegate
+	 *            Checking object for parameter numbers
 	 */
-	public FunctionInformation(Class<Function> functionClass, String functionName, int[] acceptedParameterNumber) {
+	public FunctionInformation(Class<? extends Function> functionClass, String functionName, ParameterCountCheck delegate) {
 		this.functionClass = functionClass;
 		this.functionName = functionName;
-		this.acceptedParameterNumber = acceptedParameterNumber;
+		this.parameterCountChecker = delegate;
 	}
 
 	/**
@@ -36,7 +36,7 @@ public class FunctionInformation {
 	 * 
 	 * @return the function class
 	 */
-	public Class<Function> getFunctionClass() {
+	public Class<? extends Function> getFunctionClass() {
 		return functionClass;
 	}
 
@@ -50,12 +50,20 @@ public class FunctionInformation {
 	}
 
 	/**
-	 * Get the numbers of accepted parameters.
+	 * Tests if a given number if parameters is acceptable for this function.
 	 * 
-	 * @return the accepted parameter numbers
+	 * @param parameterCount The number of parameters to test for
+	 * @return True, if the given number of parameters is acceptable for this
+	 *         function
 	 */
-	public int[] getAcceptedParameterNumber() {
-		return acceptedParameterNumber;
+	public boolean isParameterCountAcceptable(int parameterCount) {
+		return parameterCountChecker.check(parameterCount);
+	}
+
+	public interface ParameterCountCheck {
+
+		public boolean check(int paramterCount);
+
 	}
 
 }
