@@ -31,7 +31,6 @@ public final class StringTransformer {
 	 * 
 	 * - analyze negative signs and transform them into important subtractions
 	 */
-	// TODO proper variable recognition
 	private final InitialTransformationHolder[] initialTransformations = new InitialTransformationHolder[] { new InitialTransformationHolder("\\s+", "", "stripping whitespaces resulted in "),
 			new InitialTransformationHolder("(\\d)x", "$1*x", "Multipliers before variable resulted in "), new InitialTransformationHolder("(\\d+)", "($1)", "Numbers in brackets resulted in "),
 			new InitialTransformationHolder("(?<![a-z])(x)(?![a-z])", "($1)", "Variables in brackets resulted in "), new InitialTransformationHolder("(?<!\\))-", "(0)minus", "Negative transformation resulted in ") };

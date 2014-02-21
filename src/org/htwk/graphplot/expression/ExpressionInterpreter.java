@@ -174,9 +174,6 @@ public class ExpressionInterpreter {
 			// move beyond ","
 			analyzerPosition = endPositionForCurrentParameter + 2;
 		}
-		// TODO Check if needed
-		/*if (analyzerPosition == untilPostionInFormattedString - 1)
-			expressionList.add(null);*/
 		// convert ArrayList into an array
 		Expression[] actualReturnArray = new Expression[expressionList.size()];
 		for (int i = 0; i < actualReturnArray.length; i++) {

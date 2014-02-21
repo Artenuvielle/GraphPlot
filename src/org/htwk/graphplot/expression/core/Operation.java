@@ -186,7 +186,7 @@ public abstract class Operation implements Expression {
 	 */
 	public enum OperationImportance {
 
-		MOST_IMPORTANT(10), VERY_IMPORTANT(5), NORMALLY_IMPORTANT(0), NOT_VERY_IMPORTANT(-5), LEAST_IMPORTANT(-10);
+		MOST_IMPORTANT(10), VERY_IMPORTANT(5), A_BIT_IMPORTANT(1), NORMALLY_IMPORTANT(0), NOT_VERY_IMPORTANT(-5), LEAST_IMPORTANT(-10);
 
 		private int importanceValue;
 

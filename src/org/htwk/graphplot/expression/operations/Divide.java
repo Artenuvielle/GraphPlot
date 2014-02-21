@@ -15,7 +15,7 @@ import org.htwk.graphplot.expression.core.Operation;
  */
 public class Divide extends Operation {
 	
-	public static final OperationInformation operationInformation = new OperationInformation(Divide.class, "/", OperationImportance.NORMALLY_IMPORTANT);
+	public static final OperationInformation operationInformation = new OperationInformation(Divide.class, "/", OperationImportance.A_BIT_IMPORTANT);
 
 	public Divide(Expression expressionBeforeOperator, Expression expressionAfterOperator) {
 		super(expressionBeforeOperator, expressionAfterOperator);

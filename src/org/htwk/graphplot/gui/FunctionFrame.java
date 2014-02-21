@@ -3,72 +3,73 @@
  */
 package org.htwk.graphplot.gui;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.GridLayout;
 import java.awt.FlowLayout;
-import javax.swing.BoxLayout;
-import java.awt.Component;
-import javax.swing.JTextPane;
 import java.awt.Font;
 import java.awt.Color;
-import java.awt.SystemColor;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
 import javax.swing.JLabel;
-import javax.swing.DropMode;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import java.lang.Double;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.JCheckBox;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.border.LineBorder;
 
 /**
  * @author Sophie Eckenstaler, René Martin
- *
+ * 
  */
 public class FunctionFrame extends JFrame {
 
+	private static final long serialVersionUID = -3500312048315935586L;
+
+	private final Font titleFont = new Font("Verdana", Font.BOLD, 20);
+	private final Font standardFont = new Font("Verdana", Font.BOLD, 15);
+	private final Font inputFont = new Font("Verdana", Font.PLAIN, 13);
+	private final Color fontColor = Color.DARK_GRAY;
+	private final Color inputColor = Color.BLACK;
+	private final String defaultFunction = "x";
+
 	private JPanel contentPane;
-	private JTextField txtFunktionsplot;
-	private JTextField txtEingabe;
-	private JPanel Panel_Eingabe;
-	private JTextField txtX_1;
-	private JPanel panel_x;
-	private JTextField txtMin_x;
-	private JPanel panel_y;
-	private JPanel panel_xmin;
-	private JTextField textField_xmin;
-	private JPanel panel_xmax;
-	private JTextField txtMax_x;
-	private JTextField textField_xmax;
-	private JPanel panel_ymin;
-	private JTextField textField_ymin;
-	private JPanel panel_ymax;
-	private JTextField textField_ymax;
-	private JPanel panel_Button;
-	private JButton btnNewButton;
+	private JPanel panelFunctionplot;
+	private JPanel panelInput;
+	private JTextField txtFunction;
+	private JPanel panelX;
+	private JPanel panelY;
+	private JPanel panelXMin;
+	private JTextField textFieldXMin;
+	private JPanel panelXMax;
+	private JTextField textFieldXMax;
+	private JPanel panelYMin;
+	private JTextField textFieldYMin;
+	private JPanel panelYMax;
+	private JTextField textFieldYMax;
+	private JPanel panelButton;
+	private JButton btnRedraw;
 	private JCheckBox chkYEnabled;
-	private JPanel panel;
+	private JPanel panelYSelection;
 	private JLabel txtX;
 	private JLabel txtY;
-	private JLabel txtMin_y;
-	private JLabel txtMax_y;
+	private JLabel txtYMin;
+	private JLabel txtYMax;
+	private JLabel txtXMin;
+	private JLabel txtXMax;
+	private JLabel txtInput;
+	private JLabel txtTitle;
+	private final FunctionGraph functionGraph = new FunctionGraph();
 
 	/**
-	 * Create the frame.
+	 * Create the function frame.
 	 */
 	public FunctionFrame() {
 		setTitle("GraphPlot");
@@ -77,189 +78,228 @@ public class FunctionFrame extends JFrame {
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		contentPane.setLayout(new GridLayout(0, 2, 0, 0));
-		final FunctionGraph functionGraph = new FunctionGraph();
-		functionGraph.setFunction("x");
+		contentPane.setLayout(new GridLayout(0, 2, 10, 0));
+		functionGraph.setFunction(defaultFunction);
 		contentPane.add(functionGraph);
-		
-		JPanel Panel_Fktplot = new JPanel();
-		contentPane.add(Panel_Fktplot);
-		Panel_Fktplot.setLayout(new GridLayout(0, 1, 2, 0));
-		
-		txtFunktionsplot = new JTextField();
-		txtFunktionsplot.setEditable(false);
-		txtFunktionsplot.setHorizontalAlignment(SwingConstants.CENTER);
-		txtFunktionsplot.setFont(new Font("Verdana", Font.BOLD, 20));
-		txtFunktionsplot.setForeground(Color.DARK_GRAY);
-		txtFunktionsplot.setText("Mathematischer Funktionsplotter");
-		Panel_Fktplot.add(txtFunktionsplot);
-		txtFunktionsplot.setColumns(10);
-		
-		Panel_Eingabe = new JPanel();
-		Panel_Fktplot.add(Panel_Eingabe);
-		Panel_Eingabe.setLayout(new GridLayout(0, 2, 2, 0));
-		
-		txtEingabe = new JTextField();
-		txtEingabe.setEditable(false);
-		Panel_Eingabe.add(txtEingabe);
-		txtEingabe.setForeground(Color.DARK_GRAY);
-		txtEingabe.setFont(new Font("Verdana", Font.BOLD, 15));
-		txtEingabe.setHorizontalAlignment(SwingConstants.CENTER);
-		txtEingabe.setText("Eingabe");
-		txtEingabe.setColumns(2);
-		
-		txtX_1 = new JTextField();
-		txtX_1.setText("x");
-		txtX_1.setHorizontalAlignment(SwingConstants.CENTER);
-		txtX_1.setFont(new Font("Verdana", Font.PLAIN, 15));
-		txtX_1.setForeground(Color.BLACK);
-		Panel_Eingabe.add(txtX_1);
-		txtX_1.setColumns(10);
-		
-		panel_x = new JPanel();
-		Panel_Fktplot.add(panel_x);
-		panel_x.setLayout(new GridLayout(0, 3, 2, 0));
-		
-		txtX = new JLabel("X");
-		txtX.setForeground(Color.DARK_GRAY);
-		txtX.setFont(new Font("Verdana", Font.BOLD, 15));
-		txtX.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_x.add(txtX);
-		
-		panel_xmin = new JPanel();
-		panel_x.add(panel_xmin);
-		panel_xmin.setLayout(new GridLayout(2, 1, 0, 0));
-		
-		txtMin_x = new JTextField();
-		txtMin_x.setText("min");
-		txtMin_x.setEditable(false);
-		panel_xmin.add(txtMin_x);
-		txtMin_x.setHorizontalAlignment(SwingConstants.CENTER);
-		txtMin_x.setForeground(Color.DARK_GRAY);
-		txtMin_x.setFont(new Font("Verdana", Font.BOLD, 15));
-		txtMin_x.setColumns(10);
-		
-		textField_xmin = new JTextField();
-		textField_xmin.setText("-10");
-		textField_xmin.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_xmin.setForeground(Color.BLACK);
-		textField_xmin.setFont(new Font("Verdana", Font.PLAIN, 15));
-		textField_xmin.setColumns(10);
-		panel_xmin.add(textField_xmin);
-		
-		panel_xmax = new JPanel();
-		panel_x.add(panel_xmax);
-		panel_xmax.setLayout(new GridLayout(2, 1, 0, 0));
-		
-		txtMax_x = new JTextField();
-		txtMax_x.setText("max");
-		txtMax_x.setHorizontalAlignment(SwingConstants.CENTER);
-		txtMax_x.setForeground(Color.DARK_GRAY);
-		txtMax_x.setFont(new Font("Verdana", Font.BOLD, 15));
-		txtMax_x.setEditable(false);
-		txtMax_x.setColumns(10);
-		panel_xmax.add(txtMax_x);
-		
-		textField_xmax = new JTextField();
-		textField_xmax.setText("10");
-		textField_xmax.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_xmax.setForeground(Color.BLACK);
-		textField_xmax.setFont(new Font("Verdana", Font.PLAIN, 15));
-		textField_xmax.setColumns(10);
-		panel_xmax.add(textField_xmax);
-		
-		panel_y = new JPanel();
-		Panel_Fktplot.add(panel_y);
-		panel_y.setLayout(new GridLayout(0, 3, 2, 0));
-		
-		panel = new JPanel();
-		panel_y.add(panel);
-		panel.setLayout(new GridLayout(3, 1, 0, 0));
-		
+
+		panelFunctionplot = new JPanel();
+		contentPane.add(panelFunctionplot);
+		panelFunctionplot.setLayout(new GridLayout(0, 1, 2, 10));
+
+		insertTitle();
+		insertMainInput();
+		insertXInput();
+		insertYInput();
+		insertRedrawButton();
+		addDataBinding();
+	}
+
+	/**
+	 * Inserts a panel with the title.
+	 */
+	private void insertTitle() {
+		txtTitle = new JLabel("Mathematischer Funktionsplotter");
+		txtTitle.setHorizontalAlignment(SwingConstants.CENTER);
+		txtTitle.setFont(titleFont);
+		panelFunctionplot.add(txtTitle);
+	}
+
+	/**
+	 * Inserts a panel with the main input text field where the user can put in
+	 * custom functions.
+	 */
+	private void insertMainInput() {
+		panelInput = new JPanel();
+		panelFunctionplot.add(panelInput);
+		panelInput.setLayout(new GridLayout(0, 2, 2, 0));
+
+		txtInput = createLabel("Eingabe", true);
+		panelInput.add(txtInput);
+
+		txtFunction = createTextField(defaultFunction, true);
+		panelInput.add(txtFunction);
+	}
+
+	/**
+	 * Inserts a panel for defining x axe limits.
+	 */
+	private void insertXInput() {
+		panelX = new JPanel();
+		panelX.setBorder(new LineBorder(fontColor, 1, true));
+		panelFunctionplot.add(panelX);
+		panelX.setLayout(new GridLayout(0, 3, 2, 0));
+
+		txtX = createLabel("X", true);
+		panelX.add(txtX);
+
+		panelXMin = new JPanel();
+		panelX.add(panelXMin);
+		panelXMin.setLayout(new GridLayout(2, 1, 0, 0));
+
+		txtXMin = createLabel("min", true);
+		panelXMin.add(txtXMin);
+
+		textFieldXMin = createTextField("-10", true);
+		panelXMin.add(textFieldXMin);
+
+		panelXMax = new JPanel();
+		panelX.add(panelXMax);
+		panelXMax.setLayout(new GridLayout(2, 1, 0, 0));
+
+		txtXMax = createLabel("max", true);
+		panelXMax.add(txtXMax);
+
+		textFieldXMax = createTextField("10", true);
+		panelXMax.add(textFieldXMax);
+	}
+
+	/**
+	 * Inserts a panel for defining y axe limits.
+	 */
+	private void insertYInput() {
+		panelY = new JPanel();
+		panelY.setBorder(new LineBorder(fontColor, 1, true));
+		panelFunctionplot.add(panelY);
+		panelY.setLayout(new GridLayout(0, 3, 2, 0));
+
+		panelYSelection = new JPanel();
+		panelY.add(panelYSelection);
+		panelYSelection.setLayout(new GridLayout(3, 1, 0, 0));
+
 		chkYEnabled = new JCheckBox("Eigene Y-Grenzen");
 		chkYEnabled.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				txtY.setEnabled(chkYEnabled.isSelected());
-				txtMin_y.setEnabled(chkYEnabled.isSelected());
-				txtMax_y.setEnabled(chkYEnabled.isSelected());
-				textField_ymin.setEnabled(chkYEnabled.isSelected());
-				textField_ymax.setEnabled(chkYEnabled.isSelected());
+				txtYMin.setEnabled(chkYEnabled.isSelected());
+				txtYMax.setEnabled(chkYEnabled.isSelected());
+				textFieldYMin.setEnabled(chkYEnabled.isSelected());
+				textFieldYMax.setEnabled(chkYEnabled.isSelected());
 			}
 		});
-		chkYEnabled.setFont(new Font("Verdana", Font.PLAIN, 13));
+		chkYEnabled.setFont(inputFont);
+		chkYEnabled.setForeground(inputColor);
 		chkYEnabled.setHorizontalAlignment(SwingConstants.CENTER);
-		panel.add(chkYEnabled);
-		
-		txtY = new JLabel("Y");
-		txtY.setEnabled(false);
-		txtY.setHorizontalAlignment(SwingConstants.CENTER);
-		txtY.setFont(new Font("Verdana", Font.BOLD, 15));
-		txtY.setForeground(Color.DARK_GRAY);
-		panel.add(txtY);
-		
-		panel_ymin = new JPanel();
-		panel_y.add(panel_ymin);
-		panel_ymin.setLayout(new GridLayout(2, 1, 0, 0));
-		
-		txtMin_y = new JLabel("min");
-		txtMin_y.setEnabled(false);
-		txtMin_y.setHorizontalAlignment(SwingConstants.CENTER);
-		txtMin_y.setForeground(Color.DARK_GRAY);
-		txtMin_y.setFont(new Font("Verdana", Font.BOLD, 15));
-		panel_ymin.add(txtMin_y);
-		
-		textField_ymin = new JTextField();
-		textField_ymin.setEnabled(false);
-		textField_ymin.setText("-10");
-		textField_ymin.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_ymin.setForeground(Color.BLACK);
-		textField_ymin.setFont(new Font("Verdana", Font.PLAIN, 15));
-		textField_ymin.setColumns(10);
-		panel_ymin.add(textField_ymin);
-		
-		panel_ymax = new JPanel();
-		panel_y.add(panel_ymax);
-		panel_ymax.setLayout(new GridLayout(2, 1, 0, 0));
-		
-		txtMax_y = new JLabel("max");
-		txtMax_y.setHorizontalAlignment(SwingConstants.CENTER);
-		txtMax_y.setForeground(Color.DARK_GRAY);
-		txtMax_y.setFont(new Font("Verdana", Font.BOLD, 15));
-		txtMax_y.setEnabled(false);
-		panel_ymax.add(txtMax_y);
-		
-		textField_ymax = new JTextField();
-		textField_ymax.setEnabled(false);
-		textField_ymax.setText("10");
-		textField_ymax.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_ymax.setForeground(Color.BLACK);
-		textField_ymax.setFont(new Font("Verdana", Font.PLAIN, 15));
-		textField_ymax.setColumns(10);
-		panel_ymax.add(textField_ymax);
-		
-		panel_Button = new JPanel();
-		Panel_Fktplot.add(panel_Button);
-		
-		btnNewButton = new JButton("Jetzt zeichnen!");
-		btnNewButton.addActionListener(new ActionListener() {
+		panelYSelection.add(chkYEnabled);
+
+		txtY = createLabel("Y", false);
+		panelYSelection.add(txtY);
+
+		panelYMin = new JPanel();
+		panelY.add(panelYMin);
+		panelYMin.setLayout(new GridLayout(2, 1, 0, 0));
+
+		txtYMin = createLabel("min", false);
+		panelYMin.add(txtYMin);
+
+		textFieldYMin = createTextField("-10", false);
+		panelYMin.add(textFieldYMin);
+
+		panelYMax = new JPanel();
+		panelY.add(panelYMax);
+		panelYMax.setLayout(new GridLayout(2, 1, 0, 0));
+
+		txtYMax = createLabel("max", false);
+		panelYMax.add(txtYMax);
+
+		textFieldYMax = createTextField("10", false);
+		panelYMax.add(textFieldYMax);
+	}
+
+	/**
+	 * Inserts a panel with the button to redraw the function plotter.
+	 */
+	private void insertRedrawButton() {
+		panelButton = new JPanel();
+		panelFunctionplot.add(panelButton);
+
+		btnRedraw = new JButton("Jetzt zeichnen!");
+		btnRedraw.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				functionGraph.setFunction(txtX_1.getText());
-				functionGraph.setXMin(Double.parseDouble(textField_xmin.getText().replace(",", ".")));
-				functionGraph.setXMax(Double.parseDouble(textField_xmax.getText().replace(",", ".")));
-				if(chkYEnabled.isSelected()) {
+				functionGraph.setFunction(txtFunction.getText());
+				functionGraph.setXMin(Double.parseDouble(textFieldXMin.getText().replace(",", ".")));
+				functionGraph.setXMax(Double.parseDouble(textFieldXMax.getText().replace(",", ".")));
+				if (chkYEnabled.isSelected()) {
 					functionGraph.setAutomaticY(false);
-					functionGraph.setYMin(Double.parseDouble(textField_ymin.getText().replace(",", ".")));
-					functionGraph.setYMax(Double.parseDouble(textField_ymax.getText().replace(",", ".")));
+					functionGraph.setYMin(Double.parseDouble(textFieldYMin.getText().replace(",", ".")));
+					functionGraph.setYMax(Double.parseDouble(textFieldYMax.getText().replace(",", ".")));
 				} else {
 					functionGraph.setAutomaticY(true);
 				}
 			}
 		});
-		panel_Button.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-		btnNewButton.setForeground(Color.DARK_GRAY);
-		btnNewButton.setFont(new Font("Verdana", Font.BOLD, 15));
-		panel_Button.add(btnNewButton);
+		panelButton.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+		btnRedraw.setForeground(fontColor);
+		btnRedraw.setFont(standardFont);
+		panelButton.add(btnRedraw);
 	}
 
+	/**
+	 * Creates a text field with a given standard text.
+	 * 
+	 * @param content
+	 *            The given standard text
+	 * @param enabled
+	 *            True if the element should be enabled by default
+	 * @return The created text field
+	 */
+	private JTextField createTextField(String content, boolean enabled) {
+		JTextField createdElement = new JTextField();
+		createdElement.setEnabled(enabled);
+		createdElement.setText(content);
+		createdElement.setHorizontalAlignment(SwingConstants.CENTER);
+		createdElement.setForeground(inputColor);
+		createdElement.setFont(inputFont);
+		return createdElement;
+	}
+
+	/**
+	 * Creates a label with a given standard text.
+	 * 
+	 * @param content
+	 *            The given standard text
+	 * @param enabled
+	 *            True if the element should be enabled by default
+	 * @return The created label
+	 */
+	private JLabel createLabel(String content, boolean enabled) {
+		JLabel createdElement = new JLabel();
+		createdElement.setEnabled(enabled);
+		createdElement.setText(content);
+		createdElement.setHorizontalAlignment(SwingConstants.CENTER);
+		createdElement.setForeground(fontColor);
+		createdElement.setFont(standardFont);
+		return createdElement;
+	}
+
+	/**
+	 * Adds a binding to function graph as data model. Whenever the axe limits
+	 * of the model are changed it will be displayed in the corresponding text
+	 * fields. This creates an observer pattern which is implemented using
+	 * Java-Beans.
+	 */
+	private void addDataBinding() {
+		functionGraph.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+				JTextField reciever = null;
+				switch (evt.getPropertyName()) {
+				case "xmin":
+					reciever = textFieldXMin;
+					break;
+				case "xmax":
+					reciever = textFieldXMax;
+					break;
+				case "ymin":
+					reciever = textFieldYMin;
+					break;
+				case "ymax":
+					reciever = textFieldYMax;
+					break;
+				}
+				if (reciever != null) {
+					reciever.setText(String.valueOf(Math.round((double) evt.getNewValue() * 100.0) / 100.0));
+				}
+			}
+		});
+	}
 
 }

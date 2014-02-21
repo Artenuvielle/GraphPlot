@@ -14,7 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * JUnit 4 test cases
+ * JUnit 4 test cases for all functions
  * 
  * @author Sophie Eckenstaler, René Martin
  * @version 1.0
