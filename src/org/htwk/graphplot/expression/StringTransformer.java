@@ -25,15 +25,20 @@ public final class StringTransformer {
 	 * 
 	 * - remove all whitespace characters
 	 * 
+	 * - move commas and divide these numbers by 10 instead
+	 * 
+	 * - remove all commas after they have no numbers after them anymore
+	 * 
 	 * - insert multiplication symbols between numbers and variables
 	 * 
 	 * - insert brackets around numbers and variables
 	 * 
 	 * - analyze negative signs and transform them into important subtractions
 	 */
-	private final InitialTransformationHolder[] initialTransformations = new InitialTransformationHolder[] { new InitialTransformationHolder("\\s+", "", "stripping whitespaces resulted in "),
-			new InitialTransformationHolder("(\\d)x", "$1*x", "Multipliers before variable resulted in "), new InitialTransformationHolder("(\\d+)", "($1)", "Numbers in brackets resulted in "),
-			new InitialTransformationHolder("(?<![a-z])(x)(?![a-z])", "($1)", "Variables in brackets resulted in "), new InitialTransformationHolder("(?<!\\))-", "(0)minus", "Negative transformation resulted in ") };
+	private final InitialTransformationHolder[] initialTransformations = new InitialTransformationHolder[] { new InitialTransformationHolder("\\s+", "", "Stripping whitespaces resulted in "),
+			new InitialTransformationHolder("(\\d*)\\.(\\d)", "$1$2/10", "Moving commas reulted in ", true), new InitialTransformationHolder("(\\d+)\\.", "$1", "Removing commas reulted in "), new InitialTransformationHolder("(\\d)x", "$1*x", "Multipliers before variable resulted in "),
+			new InitialTransformationHolder("(\\d+)", "($1)", "Numbers in brackets resulted in "), new InitialTransformationHolder("(?<![a-z])(x)(?![a-z])", "($1)", "Variables in brackets resulted in "),
+			new InitialTransformationHolder("(?<!\\))-", "(0)minus", "Negative transformation resulted in ") };
 
 	private String inputExpression;
 	private String originalInput;
@@ -86,9 +91,14 @@ public final class StringTransformer {
 	 */
 	private void performInitialTransformation() throws InvalidExpressionException {
 		for (InitialTransformationHolder tranformation : initialTransformations) {
-			String currentPattern = tranformation.getPattern();
-			inputExpression = inputExpression.replaceAll(currentPattern, tranformation.getReplacement());
-			logger.fine(tranformation.getReason() + inputExpression);
+			boolean stringStaysConstant;
+			do {
+				String currentPattern = tranformation.getPattern();
+				String result = inputExpression.replaceAll(currentPattern, tranformation.getReplacement());
+				stringStaysConstant = result.equals(inputExpression);
+				inputExpression = result;
+				logger.fine(tranformation.getReason() + inputExpression);
+			} while (tranformation.getRepeatAllways() && !stringStaysConstant);
 		}
 	}
 
@@ -228,7 +238,9 @@ public final class StringTransformer {
 	 * @version 1.0
 	 */
 	private class InitialTransformationHolder {
+
 		private String pattern, replacement, reason;
+		private boolean repeatAllways = false;
 
 		/**
 		 * Instantiate an object to hold information for a regular expression
@@ -246,6 +258,28 @@ public final class StringTransformer {
 			this.pattern = pattern;
 			this.replacement = replacement;
 			this.reason = reason;
+		}
+
+		/**
+		 * Instantiate an object to hold information for a regular expression
+		 * replacement.
+		 * 
+		 * @param pattern
+		 *            The RegEx pattern to search for
+		 * @param replacement
+		 *            The RegEx replacement to replace the patterns with
+		 * @param reason
+		 *            A string which will be print in the log as the reason for
+		 *            the replacement
+		 * @param repeatUntilNotFoundAnymore
+		 *            True, if this transformation should be applied until it is
+		 *            not found anymore
+		 */
+		protected InitialTransformationHolder(String pattern, String replacement, String reason, boolean repeatUntilNotFoundAnymore) {
+			this.pattern = pattern;
+			this.replacement = replacement;
+			this.reason = reason;
+			this.repeatAllways = repeatUntilNotFoundAnymore;
 		}
 
 		/**
@@ -274,6 +308,16 @@ public final class StringTransformer {
 		protected String getReason() {
 			return reason;
 		}
+
+		/**
+		 * Get if the transformation should be applied until not found anymore.
+		 * 
+		 * @return False, if the pattern should only be applied once
+		 */
+		protected boolean getRepeatAllways() {
+			return repeatAllways;
+		}
+
 	}
 
 }
